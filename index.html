@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conrado Pelá | Exposição Digital</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* 1. ESTÉTICA DE GALERIA PURA (WHITE SPACE ABSOLUTO) */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            color: #000000;
+            font-family: 'Helvetica Neue', Arial, sans-serif; 
+            overflow-x: hidden;
+        }
+
+        /* 2. HEADER EDITORIAL MINIMALISTA */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 90px;
+            background-color: #ffffff;
+            color: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            border-bottom: 1px solid #f7f7f7;
+        }
+
+        .site-header h1 {
+            margin: 0;
+            font-family: 'Jost', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+        }
+
+        /* Indicador sutil de acervo */
+        .gallery-badge {
+            position: fixed;
+            bottom: 30px;
+            left: 40px;
+            font-family: 'Jost', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #999;
+            z-index: 90;
+        }
+
+        /* Indicador de posição (dots) */
+        .dots-nav {
+            position: fixed;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 90;
+            opacity: 1;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .dots-nav.hidden {
+            opacity: 0;
+            transform: translateY(-50%) translateX(15px);
+            pointer-events: none;
+        }
+
+        .dots-nav .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: #dddddd;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .dots-nav .dot.active {
+            background-color: #000000;
+            transform: scale(1.5);
+        }
+
+        @media (max-width: 968px) {
+            .dots-nav {
+                flex-direction: row;
+                right: auto;
+                top: auto;
+                left: 50%;
+                bottom: 30px;
+                transform: translateX(-50%);
+            }
+
+            .dots-nav.hidden {
+                transform: translateX(-50%) translateY(15px);
+            }
+
+            .dots-nav .dot.active {
+                transform: scale(1.5);
+            }
+        }
+
+        /* 3. O CANVAS DA EXPOSIÇÃO LÍQUIDA (HOME) */
+        .scroll-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            box-sizing: border-box;
+            padding-top: 90px;
+            background-color: #ffffff;
+        }
+
+        .art-exhibition-canvas {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 90px);
+            box-sizing: border-box;
+        }
+
+        .art-frame {
+            position: absolute;
+            box-sizing: border-box;
+            background-color: transparent;
+            will-change: transform, opacity, filter;
+        }
+
+        .art-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* Estado de carregamento, exibido enquanto a lista do Cloudinary é buscada */
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Jost', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #999;
+        }
+
+        /* 4. SEÇÃO SOBRE (TRAJETÓRIA E FILOSOFIA) */
+        .secao-sobre {
+            min-height: 100vh;
+            padding: 120px 10% 80px 10%;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            border-top: 1px solid #f7f7f7;
+        }
+
+        .sobre-imagem {
+            width: 100%;
+            height: 70vh;
+            object-fit: cover;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.03);
+        }
+
+        .sobre-conteudo {
+            max-width: 500px;
+        }
+
+        .sobre-conteudo h2 {
+            font-family: 'Jost', sans-serif;
+            font-weight: 300;
+            font-size: 2.5rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        .sobre-conteudo p {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #333333;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        /* 5. SEÇÃO CONTATO & FINE ART */
+        .secao-contato {
+            min-height: 100vh;
+            padding: 120px 10%;
+            box-sizing: border-box;
+            background-color: #fafafa;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: start;
+            border-top: 1px solid #f7f7f7;
+        }
+
+        .contato-info h2 {
+            font-family: 'Jost', sans-serif;
+            font-weight: 700;
+            font-size: 2.5rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 0;
+            margin-bottom: 40px;
+        }
+
+        .fineart-box {
+            border-left: 2px solid #000000;
+            padding-left: 25px;
+            margin-top: 30px;
+        }
+
+        .fineart-box h3 {
+            font-family: 'Jost', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .fineart-box p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #555555;
+            font-weight: 300;
+            margin: 0;
+        }
+
+        .contato-form {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            padding-top: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .form-group label {
+            font-family: 'Jost', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .form-group input, .form-group textarea {
+            border: none;
+            border-bottom: 1px solid #cccccc;
+            background: transparent;
+            padding: 10px 0;
+            font-size: 1rem;
+            color: #000;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-bottom-color: #000000;
+        }
+
+        /* Estado de erro de validação (ex: e-mail inválido) */
+        .form-group.error input,
+        .form-group.error textarea {
+            border-bottom-color: #c0392b;
+        }
+
+        .form-group .erro-msg {
+            font-size: 0.78rem;
+            color: #c0392b;
+            margin-top: 6px;
+            display: none;
+            font-family: 'Jost', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group.error .erro-msg {
+            display: block;
+        }
+
+        .btn-enviar {
+            font-family: 'Jost', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            border: none;
+            padding: 15px 40px;
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            align-self: flex-start;
+            transition: background-color 0.3s;
+        }
+
+        .btn-enviar:hover {
+            background-color: #333333;
+        }
+
+        .btn-enviar:disabled {
+            background-color: #999999;
+            cursor: not-allowed;
+        }
+
+        /* Mensagem de status do envio (sucesso ou erro) */
+        .form-status {
+            font-family: 'Jost', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            margin-top: -15px;
+            display: none;
+        }
+
+        .form-status.sucesso {
+            color: #1e7e34;
+            display: block;
+        }
+
+        .form-status.falha {
+            color: #c0392b;
+            display: block;
+        }
+
+        /* 6. RESPONSIVIDADE COMPLETA */
+        @media (max-width: 968px) {
+            .secao-sobre, .secao-contato {
+                grid-template-columns: 1fr;
+                gap: 50px;
+                padding: 80px 5%;
+            }
+
+            .sobre-imagem {
+                height: 50vh;
+            }
+            
+            .sobre-conteudo h2, .contato-info h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="site-header">
+        <h1>Conrado Pelá</h1>
+    </header>
+
+    <div class="gallery-badge">Exhibition N°01 / Pure Generative Flow</div>
+
+    <div id="dotsNav" class="dots-nav"></div>
+
+    <div class="scroll-container">
+        <div id="artCanvas" class="art-exhibition-canvas">
+            <div id="loadingIndicator" class="loading-indicator">Carregando acervo...</div>
+        </div>
+    </div>
+
+    <section class="secao-sobre">
+        <img class="sobre-imagem" src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1200&auto=format&fit=crop" alt="Conrado Pelá">
+        
+        <div class="sobre-conteudo">
+            <h2>Trajetória</h2>
+            <p>A fotografia é a intersecção entre a precisão técnica e a poesia visual. Através do olhar atento às nuances da luz e da arquitetura do espaço, busco capturar momentos de quietude e transformação em um mundo em constante movimento.</p>
+            <p>Cada obra apresentada neste acervo passa por um minucioso processo de curadoria e pós-produção, onde a calibração de cor e o contraste são desenhados para evocar uma atmosfera atemporal, unindo o rigor da captura digital à sensibilidade artística.</p>
+        </div>
+    </section>
+
+    <section class="secao-contato">
+        <div class="contato-info">
+            <h2>Contato</h2>
+            <p>Para dúvidas, projetos editoriais, atribuição de licenças ou agendamento de exposições, sinta-se à vontade para enviar uma mensagem através do formulário.</p>
+            
+            <div class="fineart-box">
+                <h3>Coleção Fine Art</h3>
+                <p>Obras selecionadas deste portfólio estão disponíveis para aquisição em edições limitadas. As impressões são realizadas rigorosamente sob o padrão Fine Art, utilizando papéis de fibra de algodão de qualidade museológica e pigmentos minerais, garantindo longevidade e fidelidade de cor excepcionais. Cada impressão é acompanhada por um certificado de autenticidade assinado.</p>
+            </div>
+        </div>
+
+        <!--
+            IMPORTANTE: troque a URL abaixo pelo endpoint gerado na sua conta
+            do Formspree (https://formspree.io) — algo como:
+            https://formspree.io/f/xxxxxxxx
+        -->
+        <form id="contatoForm" class="contato-form" action="https://formspree.io/f/mjgqnknl" method="POST" novalidate>
+
+            <!-- Campo honeypot: invisível para humanos, usado para barrar bots simples -->
+            <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
+
+            <div class="form-group" id="grupoNome">
+                <label for="name">Nome</label>
+                <input type="text" id="name" name="name" required autocomplete="off">
+                <span class="erro-msg">Por favor, informe seu nome.</span>
+            </div>
+            
+            <div class="form-group" id="grupoEmail">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" required autocomplete="off">
+                <span class="erro-msg">Informe um e-mail válido (ex: nome@dominio.com).</span>
+            </div>
+            
+            <div class="form-group" id="grupoMensagem">
+                <label for="message">Mensagem</label>
+                <textarea id="message" name="message" rows="5" required></textarea>
+                <span class="erro-msg">Escreva sua mensagem antes de enviar.</span>
+            </div>
+
+            <div id="formStatus" class="form-status"></div>
+            
+            <button type="submit" class="btn-enviar" id="btnEnviar">Enviar Mensagem</button>
+        </form>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // ==========================================
+        // 1. CONFIGURAÇÃO DA API DO CLOUDINARY
+        // ==========================================
+
+        const cloudName = "rhjv9e01";
+        const tagPortfolio = "portfolio"; // tag aplicada a todas as fotos do acervo
+        const parametrosOtimizacao = "f_auto,q_auto:good,w_2000";
+        const urlBase = `https://res.cloudinary.com/${cloudName}/image/upload/${parametrosOtimizacao}/`;
+
+        // Endpoint público de listagem por tag (client-side resource list).
+        // Requer que "Resource list" esteja habilitado em Settings > Security.
+        const listUrl = `https://res.cloudinary.com/${cloudName}/image/list/${tagPortfolio}.json`;
+
+        // ==========================================
+        // 2. ACERVO DE FALLBACK (CASO A LISTAGEM FALHE)
+        // ==========================================
+        const acervoFallbackPublicIDs = [
+            "foto_01", "foto_02", "foto_03", "foto_04", "foto_05",
+            "foto_06", "foto_07", "foto_08", "foto_09", "foto_10",
+            "foto_11", "foto_12", "foto_13", "foto_14", "foto_15",
+            "foto_16", "foto_17", "foto_18", "foto_19", "foto_20",
+            "foto_21", "foto_22", "foto_23", "foto_24", "foto_25"
+        ];
+
+        // ==========================================
+        // 3. BUSCA DINÂMICA DO ACERVO NO CLOUDINARY
+        // ==========================================
+
+        async function buscarAcervo() {
+            try {
+                const response = await fetch(listUrl);
+
+                if (!response.ok) {
+                    throw new Error(`Cloudinary respondeu com status ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (!data.resources || data.resources.length === 0) {
+                    throw new Error("Nenhum recurso encontrado para a tag informada");
+                }
+
+                return data.resources.map(
+                    (item) => `${urlBase}${item.public_id}.${item.format}`
+                );
+
+            } catch (erro) {
+                console.warn(
+                    "Não foi possível buscar o acervo dinamicamente via tag. Usando lista de fallback.",
+                    erro
+                );
+                return acervoFallbackPublicIDs.map((id) => `${urlBase}${id}`);
+            }
+        }
+
+        // ==========================================
+        // 4. MOTOR GENERATIVO DE EXPOSIÇÃO
+        // ==========================================
+
+        async function iniciarExposicao() {
+            const canvas = document.getElementById("artCanvas");
+            const loadingIndicator = document.getElementById("loadingIndicator");
+
+            const urlsProntas = await buscarAcervo();
+
+            if (loadingIndicator) {
+                loadingIndicator.remove();
+            }
+
+            const fotosEmbaralhadas = gsap.utils.shuffle([...urlsProntas]);
+            const totalFotos = fotosEmbaralhadas.length;
+            const framesElementos = [];
+            const isMobile = window.innerWidth <= 768;
+
+            // Distribuição processual e fluida pelo ecrã
+            for (let i = 0; i < totalFotos; i++) {
+                const frame = document.createElement("div");
+                frame.className = "art-frame";
+
+                const width = isMobile ? gsap.utils.random(85, 95) : gsap.utils.random(65, 85);
+                const height = isMobile ? gsap.utils.random(55, 70) : gsap.utils.random(70, 90);
+
+                const left = isMobile ? gsap.utils.random(2, 8) : gsap.utils.random(7, 20);
+                const top = isMobile ? gsap.utils.random(2, 10) : gsap.utils.random(3, 15);
+
+                frame.style.width = `${width}vw`;
+                frame.style.height = `${height}vh`;
+                frame.style.left = `${left}vw`;
+                frame.style.top = `${top}vh`;
+
+                const img = document.createElement("img");
+                img.src = fotosEmbaralhadas[i];
+                frame.appendChild(img);
+
+                if (i === 0) {
+                    gsap.set(frame, { opacity: 1 });
+                } else {
+                    gsap.set(frame, { opacity: 0, filter: "blur(20px)" });
+                }
+
+                canvas.appendChild(frame);
+                framesElementos.push(frame);
+            }
+
+            // ==========================================
+            // INDICADOR DE POSIÇÃO (DOTS)
+            // ==========================================
+            const dotsNav = document.getElementById("dotsNav");
+            const dotsElementos = [];
+
+            for (let i = 0; i < totalFotos; i++) {
+                const dot = document.createElement("div");
+                dot.className = "dot";
+                if (i === 0) dot.classList.add("active");
+                dotsNav.appendChild(dot);
+                dotsElementos.push(dot);
+            }
+
+            function atualizarDotAtivo(indiceAtivo) {
+                dotsElementos.forEach((dot, i) => {
+                    dot.classList.toggle("active", i === indiceAtivo);
+                });
+            }
+
+            // ==========================================
+            // 5. COREOGRAFIA DE ROLAGEM LENTA
+            // ==========================================
+
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: ".scroll-container",
+                    start: "top top",
+                    end: "+=26000",
+                    scrub: 1.5,
+                    pin: true,
+                    onUpdate: (self) => {
+                        const indiceAtivo = Math.min(
+                            totalFotos - 1,
+                            Math.floor(self.progress * totalFotos)
+                        );
+                        atualizarDotAtivo(indiceAtivo);
+                    },
+                    onLeave: () => {
+                        // Scroll passou do fim da exposição -> esconde os dots com fade
+                        dotsNav.classList.add("hidden");
+                    },
+                    onEnterBack: () => {
+                        // Usuário rolou de volta para dentro da exposição -> mostra os dots com fade
+                        dotsNav.classList.remove("hidden");
+                    }
+                }
+            });
+
+            // Saída suave da obra inicial
+            tl.to(framesElementos[0], {
+                opacity: 0,
+                filter: "blur(20px)",
+                duration: 2.5,
+                ease: "power1.inOut"
+            });
+
+            // Aparição orgânica das demais fotografias
+            const indexImagensRestantes = Array.from({ length: totalFotos - 1 }, (_, i) => i + 1);
+            const ordemSurgimentoRandomica = gsap.utils.shuffle(indexImagensRestantes);
+
+            ordemSurgimentoRandomica.forEach((idx, i) => {
+
+                tl.to(framesElementos[idx], {
+                    opacity: 1,
+                    filter: "blur(0px)",
+                    duration: 3.2,
+                    ease: "power2.inOut"
+                }, `-=${i === 0 ? 1.5 : 1.2}`);
+
+                if (i < ordemSurgimentoRandomica.length - 1) {
+                    tl.to(framesElementos[idx], {
+                        opacity: 0,
+                        filter: "blur(20px)",
+                        duration: 2.5,
+                        ease: "power1.inOut"
+                    }, "+=1.2");
+                }
+            });
+
+            ScrollTrigger.refresh();
+        }
+
+        iniciarExposicao();
+
+        // ==========================================
+        // 6. FORMULÁRIO DE CONTATO (ENVIO + VALIDAÇÃO)
+        // ==========================================
+
+        const contatoForm = document.getElementById("contatoForm");
+        const btnEnviar = document.getElementById("btnEnviar");
+        const formStatus = document.getElementById("formStatus");
+
+        // Regex de validação de e-mail: cobre a grande maioria dos formatos
+        // válidos (usuario@dominio.tld), sem ser excessivamente restritiva.
+        const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        function mostrarErro(idGrupo) {
+            document.getElementById(idGrupo).classList.add("error");
+        }
+
+        function limparErro(idGrupo) {
+            document.getElementById(idGrupo).classList.remove("error");
+        }
+
+        function validarFormulario() {
+            let valido = true;
+
+            const nome = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const mensagem = document.getElementById("message").value.trim();
+
+            // Nome
+            if (nome.length === 0) {
+                mostrarErro("grupoNome");
+                valido = false;
+            } else {
+                limparErro("grupoNome");
+            }
+
+            // E-mail: precisa passar tanto no HTML5 quanto na regex própria
+            if (email.length === 0 || !regexEmail.test(email)) {
+                mostrarErro("grupoEmail");
+                valido = false;
+            } else {
+                limparErro("grupoEmail");
+            }
+
+            // Mensagem
+            if (mensagem.length === 0) {
+                mostrarErro("grupoMensagem");
+                valido = false;
+            } else {
+                limparErro("grupoMensagem");
+            }
+
+            return valido;
+        }
+
+        // Valida o e-mail em tempo real, assim que o usuário sai do campo
+        document.getElementById("email").addEventListener("blur", function () {
+            const email = this.value.trim();
+            if (email.length === 0 || regexEmail.test(email)) {
+                limparErro("grupoEmail");
+            } else {
+                mostrarErro("grupoEmail");
+            }
+        });
+
+        contatoForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            formStatus.className = "form-status";
+            formStatus.textContent = "";
+
+            if (!validarFormulario()) {
+                formStatus.classList.add("falha");
+                formStatus.textContent = "Corrija os campos destacados antes de enviar.";
+                return;
+            }
+
+            const formData = new FormData(contatoForm);
+
+            btnEnviar.disabled = true;
+            btnEnviar.textContent = "Enviando...";
+
+            try {
+                const response = await fetch(contatoForm.action, {
+                    method: "POST",
+                    body: formData,
+                    headers: { "Accept": "application/json" }
+                });
+
+                if (response.ok) {
+                    formStatus.classList.add("sucesso");
+                    formStatus.textContent = "Mensagem enviada com sucesso! Obrigado pelo contato.";
+                    contatoForm.reset();
+                } else {
+                    formStatus.classList.add("falha");
+                    formStatus.textContent = "Não foi possível enviar a mensagem. Tente novamente.";
+                }
+            } catch (erro) {
+                formStatus.classList.add("falha");
+                formStatus.textContent = "Erro de conexão. Verifique sua internet e tente novamente.";
+            } finally {
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = "Enviar Mensagem";
+            }
+        });
+    </script>
+</body>
+</html>
