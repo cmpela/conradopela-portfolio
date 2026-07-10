@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conrado Pelá | Exposição Digital</title>
+    <title>Conrado Pelá | Digital Exhibition</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -56,6 +56,53 @@
             text-transform: uppercase;
             color: #999;
             z-index: 90;
+        }
+
+        /* Seletor de idioma */
+        .lang-switch {
+            position: fixed;
+            top: 34px;
+            right: 40px;
+            z-index: 110;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Jost', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+        }
+
+        .lang-switch button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #999;
+            font-family: inherit;
+            font-size: inherit;
+            letter-spacing: inherit;
+            padding: 4px 2px;
+            transition: color 0.25s ease;
+        }
+
+        .lang-switch button:hover {
+            color: #000000;
+        }
+
+        .lang-switch button.active {
+            color: #000000;
+            font-weight: 700;
+        }
+
+        .lang-switch .separator {
+            color: #dddddd;
+            font-size: 0.7rem;
+        }
+
+        @media (max-width: 968px) {
+            .lang-switch {
+                top: 28px;
+                right: 20px;
+            }
         }
 
         /* Indicador de posição (dots) */
@@ -365,13 +412,21 @@
         <h1>Conrado Pelá</h1>
     </header>
 
-    <div class="gallery-badge">Exhibition N°01 / Pure Generative Flow</div>
+    <div class="lang-switch" id="langSwitch">
+        <button type="button" data-lang="pt">PT</button>
+        <span class="separator">|</span>
+        <button type="button" data-lang="es">ES</button>
+        <span class="separator">|</span>
+        <button type="button" data-lang="en">EN</button>
+    </div>
+
+    <div class="gallery-badge" data-i18n="badge">Exhibition N°01 / Pure Generative Flow</div>
 
     <div id="dotsNav" class="dots-nav"></div>
 
     <div class="scroll-container">
         <div id="artCanvas" class="art-exhibition-canvas">
-            <div id="loadingIndicator" class="loading-indicator">Carregando acervo...</div>
+            <div id="loadingIndicator" class="loading-indicator" data-i18n="loading">Loading collection...</div>
         </div>
     </div>
 
@@ -379,20 +434,20 @@
         <img class="sobre-imagem" src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1200&auto=format&fit=crop" alt="Conrado Pelá">
         
         <div class="sobre-conteudo">
-            <h2>Trajetória</h2>
-            <p>A fotografia é a intersecção entre a precisão técnica e a poesia visual. Através do olhar atento às nuances da luz e da arquitetura do espaço, busco capturar momentos de quietude e transformação em um mundo em constante movimento.</p>
-            <p>Cada obra apresentada neste acervo passa por um minucioso processo de curadoria e pós-produção, onde a calibração de cor e o contraste são desenhados para evocar uma atmosfera atemporal, unindo o rigor da captura digital à sensibilidade artística.</p>
+            <h2 data-i18n="sobreTitle">Journey</h2>
+            <p data-i18n="sobrePara1">Photography is the intersection between technical precision and visual poetry. Through an attentive eye to the nuances of light and the architecture of space, I seek to capture moments of stillness and transformation in an ever-moving world.</p>
+            <p data-i18n="sobrePara2">Each work presented in this collection goes through a meticulous process of curation and post-production, where color calibration and contrast are crafted to evoke a timeless atmosphere, uniting the rigor of digital capture with artistic sensibility.</p>
         </div>
     </section>
 
     <section class="secao-contato">
         <div class="contato-info">
-            <h2>Contato</h2>
-            <p>Para dúvidas, projetos editoriais, atribuição de licenças ou agendamento de exposições, sinta-se à vontade para enviar uma mensagem através do formulário.</p>
+            <h2 data-i18n="contatoTitle">Contact</h2>
+            <p data-i18n="contatoPara">For inquiries, editorial projects, licensing, or exhibition bookings, feel free to send a message through the form.</p>
             
             <div class="fineart-box">
-                <h3>Coleção Fine Art</h3>
-                <p>Obras selecionadas deste portfólio estão disponíveis para aquisição em edições limitadas. As impressões são realizadas rigorosamente sob o padrão Fine Art, utilizando papéis de fibra de algodão de qualidade museológica e pigmentos minerais, garantindo longevidade e fidelidade de cor excepcionais. Cada impressão é acompanhada por um certificado de autenticidade assinado.</p>
+                <h3 data-i18n="fineArtTitle">Fine Art Collection</h3>
+                <p data-i18n="fineArtPara">Selected works from this portfolio are available for acquisition in limited editions. Prints are rigorously made to Fine Art standards, using museum-quality cotton fiber papers and mineral pigments, ensuring exceptional longevity and color fidelity. Each print is accompanied by a signed certificate of authenticity.</p>
             </div>
         </div>
 
@@ -401,32 +456,32 @@
             do Formspree (https://formspree.io) — algo como:
             https://formspree.io/f/xxxxxxxx
         -->
-        <form id="contatoForm" class="contato-form" action="https://formspree.io/f/mjgqnknl" method="POST" novalidate>
+        <form id="contatoForm" class="contato-form" action="https://formspree.io/f/SEU_ID_AQUI" method="POST" novalidate>
 
             <!-- Campo honeypot: invisível para humanos, usado para barrar bots simples -->
             <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
 
             <div class="form-group" id="grupoNome">
-                <label for="name">Nome</label>
+                <label for="name" data-i18n="labelName">Name</label>
                 <input type="text" id="name" name="name" required autocomplete="off">
-                <span class="erro-msg">Por favor, informe seu nome.</span>
+                <span class="erro-msg" data-i18n="errorName">Please enter your name.</span>
             </div>
             
             <div class="form-group" id="grupoEmail">
-                <label for="email">E-mail</label>
+                <label for="email" data-i18n="labelEmail">Email</label>
                 <input type="email" id="email" name="email" required autocomplete="off">
-                <span class="erro-msg">Informe um e-mail válido (ex: nome@dominio.com).</span>
+                <span class="erro-msg" data-i18n="errorEmail">Please enter a valid email (e.g. name@domain.com).</span>
             </div>
             
             <div class="form-group" id="grupoMensagem">
-                <label for="message">Mensagem</label>
+                <label for="message" data-i18n="labelMessage">Message</label>
                 <textarea id="message" name="message" rows="5" required></textarea>
-                <span class="erro-msg">Escreva sua mensagem antes de enviar.</span>
+                <span class="erro-msg" data-i18n="errorMessage">Please write your message before sending.</span>
             </div>
 
             <div id="formStatus" class="form-status"></div>
             
-            <button type="submit" class="btn-enviar" id="btnEnviar">Enviar Mensagem</button>
+            <button type="submit" class="btn-enviar" id="btnEnviar" data-i18n="btnSend">Send Message</button>
         </form>
     </section>
 
@@ -435,6 +490,132 @@
     
     <script>
         gsap.registerPlugin(ScrollTrigger);
+
+        // ==========================================
+        // 0. TRADUÇÕES (PT / ES / EN)
+        // ==========================================
+
+        const traducoes = {
+            en: {
+                htmlLang: "en",
+                pageTitle: "Conrado Pelá | Digital Exhibition",
+                badge: "Exhibition N°01 / Pure Generative Flow",
+                loading: "Loading collection...",
+                sobreTitle: "Journey",
+                sobrePara1: "Photography is the intersection between technical precision and visual poetry. Through an attentive eye to the nuances of light and the architecture of space, I seek to capture moments of stillness and transformation in an ever-moving world.",
+                sobrePara2: "Each work presented in this collection goes through a meticulous process of curation and post-production, where color calibration and contrast are crafted to evoke a timeless atmosphere, uniting the rigor of digital capture with artistic sensibility.",
+                contatoTitle: "Contact",
+                contatoPara: "For inquiries, editorial projects, licensing, or exhibition bookings, feel free to send a message through the form.",
+                fineArtTitle: "Fine Art Collection",
+                fineArtPara: "Selected works from this portfolio are available for acquisition in limited editions. Prints are rigorously made to Fine Art standards, using museum-quality cotton fiber papers and mineral pigments, ensuring exceptional longevity and color fidelity. Each print is accompanied by a signed certificate of authenticity.",
+                labelName: "Name",
+                labelEmail: "Email",
+                labelMessage: "Message",
+                errorName: "Please enter your name.",
+                errorEmail: "Please enter a valid email (e.g. name@domain.com).",
+                errorMessage: "Please write your message before sending.",
+                btnSend: "Send Message",
+                btnSending: "Sending...",
+                statusValidation: "Please correct the highlighted fields before sending.",
+                statusSuccess: "Message sent successfully! Thank you for reaching out.",
+                statusFailure: "Unable to send the message. Please try again.",
+                statusNetwork: "Connection error. Check your internet and try again."
+            },
+            pt: {
+                htmlLang: "pt-BR",
+                pageTitle: "Conrado Pelá | Exposição Digital",
+                badge: "Exposição N°01 / Fluxo Generativo Puro",
+                loading: "Carregando acervo...",
+                sobreTitle: "Trajetória",
+                sobrePara1: "A fotografia é a intersecção entre a precisão técnica e a poesia visual. Através do olhar atento às nuances da luz e da arquitetura do espaço, busco capturar momentos de quietude e transformação em um mundo em constante movimento.",
+                sobrePara2: "Cada obra apresentada neste acervo passa por um minucioso processo de curadoria e pós-produção, onde a calibração de cor e o contraste são desenhados para evocar uma atmosfera atemporal, unindo o rigor da captura digital à sensibilidade artística.",
+                contatoTitle: "Contato",
+                contatoPara: "Para dúvidas, projetos editoriais, atribuição de licenças ou agendamento de exposições, sinta-se à vontade para enviar uma mensagem através do formulário.",
+                fineArtTitle: "Coleção Fine Art",
+                fineArtPara: "Obras selecionadas deste portfólio estão disponíveis para aquisição em edições limitadas. As impressões são realizadas rigorosamente sob o padrão Fine Art, utilizando papéis de fibra de algodão de qualidade museológica e pigmentos minerais, garantindo longevidade e fidelidade de cor excepcionais. Cada impressão é acompanhada por um certificado de autenticidade assinado.",
+                labelName: "Nome",
+                labelEmail: "E-mail",
+                labelMessage: "Mensagem",
+                errorName: "Por favor, informe seu nome.",
+                errorEmail: "Informe um e-mail válido (ex: nome@dominio.com).",
+                errorMessage: "Escreva sua mensagem antes de enviar.",
+                btnSend: "Enviar Mensagem",
+                btnSending: "Enviando...",
+                statusValidation: "Corrija os campos destacados antes de enviar.",
+                statusSuccess: "Mensagem enviada com sucesso! Obrigado pelo contato.",
+                statusFailure: "Não foi possível enviar a mensagem. Tente novamente.",
+                statusNetwork: "Erro de conexão. Verifique sua internet e tente novamente."
+            },
+            es: {
+                htmlLang: "es",
+                pageTitle: "Conrado Pelá | Exposición Digital",
+                badge: "Exposición N°01 / Flujo Generativo Puro",
+                loading: "Cargando colección...",
+                sobreTitle: "Trayectoria",
+                sobrePara1: "La fotografía es la intersección entre la precisión técnica y la poesía visual. A través de una mirada atenta a los matices de la luz y la arquitectura del espacio, busco capturar momentos de quietud y transformación en un mundo en constante movimiento.",
+                sobrePara2: "Cada obra presentada en este acervo pasa por un minucioso proceso de curaduría y posproducción, donde la calibración de color y el contraste se diseñan para evocar una atmósfera atemporal, uniendo el rigor de la captura digital con la sensibilidad artística.",
+                contatoTitle: "Contacto",
+                contatoPara: "Para consultas, proyectos editoriales, licencias o reserva de exposiciones, no dudes en enviar un mensaje a través del formulario.",
+                fineArtTitle: "Colección Fine Art",
+                fineArtPara: "Obras seleccionadas de este portafolio están disponibles para adquisición en ediciones limitadas. Las impresiones se realizan rigurosamente bajo el estándar Fine Art, utilizando papeles de fibra de algodón de calidad museística y pigmentos minerales, garantizando una longevidad y fidelidad de color excepcionales. Cada impresión viene acompañada de un certificado de autenticidad firmado.",
+                labelName: "Nombre",
+                labelEmail: "Correo electrónico",
+                labelMessage: "Mensaje",
+                errorName: "Por favor, indica tu nombre.",
+                errorEmail: "Indica un correo electrónico válido (ej: nombre@dominio.com).",
+                errorMessage: "Escribe tu mensaje antes de enviarlo.",
+                btnSend: "Enviar Mensaje",
+                btnSending: "Enviando...",
+                statusValidation: "Corrige los campos destacados antes de enviar.",
+                statusSuccess: "¡Mensaje enviado con éxito! Gracias por tu contacto.",
+                statusFailure: "No fue posible enviar el mensaje. Inténtalo de nuevo.",
+                statusNetwork: "Error de conexión. Verifica tu internet e inténtalo de nuevo."
+            }
+        };
+
+        let idiomaAtual = "en"; // idioma padrão de exibição
+
+        function aplicarIdioma(lang) {
+            if (!traducoes[lang]) return;
+
+            idiomaAtual = lang;
+            const dict = traducoes[lang];
+
+            document.documentElement.setAttribute("lang", dict.htmlLang);
+            document.title = dict.pageTitle;
+
+            document.querySelectorAll("[data-i18n]").forEach((el) => {
+                const chave = el.getAttribute("data-i18n");
+                if (dict[chave] !== undefined) {
+                    el.textContent = dict[chave];
+                }
+            });
+
+            document.querySelectorAll("#langSwitch button").forEach((btn) => {
+                btn.classList.toggle("active", btn.getAttribute("data-lang") === lang);
+            });
+
+            try {
+                localStorage.setItem("idiomaPortfolio", lang);
+            } catch (erro) {
+                // localStorage pode estar indisponível em alguns contextos; ignora silenciosamente
+            }
+        }
+
+        document.querySelectorAll("#langSwitch button").forEach((btn) => {
+            btn.addEventListener("click", () => aplicarIdioma(btn.getAttribute("data-lang")));
+        });
+
+        // Recupera idioma salvo anteriormente, se existir; caso contrário mantém inglês
+        (function inicializarIdioma() {
+            let salvo = null;
+            try {
+                salvo = localStorage.getItem("idiomaPortfolio");
+            } catch (erro) {
+                salvo = null;
+            }
+            aplicarIdioma(salvo && traducoes[salvo] ? salvo : "en");
+        })();
 
         // ==========================================
         // 1. CONFIGURAÇÃO DA API DO CLOUDINARY
@@ -579,11 +760,9 @@
                         atualizarDotAtivo(indiceAtivo);
                     },
                     onLeave: () => {
-                        // Scroll passou do fim da exposição -> esconde os dots com fade
                         dotsNav.classList.add("hidden");
                     },
                     onEnterBack: () => {
-                        // Usuário rolou de volta para dentro da exposição -> mostra os dots com fade
                         dotsNav.classList.remove("hidden");
                     }
                 }
@@ -633,8 +812,6 @@
         const btnEnviar = document.getElementById("btnEnviar");
         const formStatus = document.getElementById("formStatus");
 
-        // Regex de validação de e-mail: cobre a grande maioria dos formatos
-        // válidos (usuario@dominio.tld), sem ser excessivamente restritiva.
         const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         function mostrarErro(idGrupo) {
@@ -652,7 +829,6 @@
             const email = document.getElementById("email").value.trim();
             const mensagem = document.getElementById("message").value.trim();
 
-            // Nome
             if (nome.length === 0) {
                 mostrarErro("grupoNome");
                 valido = false;
@@ -660,7 +836,6 @@
                 limparErro("grupoNome");
             }
 
-            // E-mail: precisa passar tanto no HTML5 quanto na regex própria
             if (email.length === 0 || !regexEmail.test(email)) {
                 mostrarErro("grupoEmail");
                 valido = false;
@@ -668,7 +843,6 @@
                 limparErro("grupoEmail");
             }
 
-            // Mensagem
             if (mensagem.length === 0) {
                 mostrarErro("grupoMensagem");
                 valido = false;
@@ -679,7 +853,6 @@
             return valido;
         }
 
-        // Valida o e-mail em tempo real, assim que o usuário sai do campo
         document.getElementById("email").addEventListener("blur", function () {
             const email = this.value.trim();
             if (email.length === 0 || regexEmail.test(email)) {
@@ -695,16 +868,18 @@
             formStatus.className = "form-status";
             formStatus.textContent = "";
 
+            const dict = traducoes[idiomaAtual];
+
             if (!validarFormulario()) {
                 formStatus.classList.add("falha");
-                formStatus.textContent = "Corrija os campos destacados antes de enviar.";
+                formStatus.textContent = dict.statusValidation;
                 return;
             }
 
             const formData = new FormData(contatoForm);
 
             btnEnviar.disabled = true;
-            btnEnviar.textContent = "Enviando...";
+            btnEnviar.textContent = dict.btnSending;
 
             try {
                 const response = await fetch(contatoForm.action, {
@@ -715,18 +890,18 @@
 
                 if (response.ok) {
                     formStatus.classList.add("sucesso");
-                    formStatus.textContent = "Mensagem enviada com sucesso! Obrigado pelo contato.";
+                    formStatus.textContent = dict.statusSuccess;
                     contatoForm.reset();
                 } else {
                     formStatus.classList.add("falha");
-                    formStatus.textContent = "Não foi possível enviar a mensagem. Tente novamente.";
+                    formStatus.textContent = dict.statusFailure;
                 }
             } catch (erro) {
                 formStatus.classList.add("falha");
-                formStatus.textContent = "Erro de conexão. Verifique sua internet e tente novamente.";
+                formStatus.textContent = dict.statusNetwork;
             } finally {
                 btnEnviar.disabled = false;
-                btnEnviar.textContent = "Enviar Mensagem";
+                btnEnviar.textContent = dict.btnSend;
             }
         });
     </script>
