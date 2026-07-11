@@ -64,15 +64,43 @@
             top: 34px;
             right: 40px;
             z-index: 110;
-            display: flex;
-            align-items: center;
-            gap: 8px;
             font-family: 'Jost', sans-serif;
             font-size: 0.75rem;
             letter-spacing: 1.5px;
         }
 
-        .lang-switch button {
+        /* Botão "idioma atual", usado só no dropdown mobile */
+        .lang-current {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #000000;
+            font-family: inherit;
+            font-size: inherit;
+            letter-spacing: inherit;
+            padding: 6px 8px;
+        }
+
+        .lang-arrow {
+            font-size: 0.65rem;
+            transition: transform 0.25s ease;
+        }
+
+        .lang-switch.open .lang-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* Lista de opções (desktop: linha; mobile: dropdown) */
+        .lang-options {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lang-options button {
             background: none;
             border: none;
             cursor: pointer;
@@ -84,24 +112,53 @@
             transition: color 0.25s ease;
         }
 
-        .lang-switch button:hover {
+        .lang-options button:not(:last-child)::after {
+            content: "|";
+            margin-left: 8px;
+            color: #dddddd;
+        }
+
+        .lang-options button:hover {
             color: #000000;
         }
 
-        .lang-switch button.active {
+        .lang-options button.active {
             color: #000000;
             font-weight: 700;
         }
 
-        .lang-switch .separator {
-            color: #dddddd;
-            font-size: 0.7rem;
-        }
-
         @media (max-width: 968px) {
             .lang-switch {
-                top: 28px;
+                top: 26px;
                 right: 20px;
+                position: fixed;
+            }
+
+            .lang-current {
+                display: flex;
+            }
+
+            .lang-options {
+                display: none;
+                position: absolute;
+                top: calc(100% + 10px);
+                right: 0;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                background-color: #ffffff;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+                padding: 14px 18px;
+                border-radius: 4px;
+                min-width: 70px;
+            }
+
+            .lang-switch.open .lang-options {
+                display: flex;
+            }
+
+            .lang-options button:not(:last-child)::after {
+                content: none;
             }
         }
 
@@ -176,16 +233,29 @@
 
         .art-frame {
             position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw;
+            height: 82vh;
             box-sizing: border-box;
             background-color: transparent;
-            will-change: transform, opacity, filter;
+            will-change: opacity, filter;
         }
 
         .art-frame img {
             width: 100%;
             height: 100%;
             object-fit: contain;
+            object-position: center;
             display: block;
+        }
+
+        @media (max-width: 968px) {
+            .art-frame {
+                width: 94vw;
+                height: 68vh;
+            }
         }
 
         /* Estado de carregamento, exibido enquanto a lista do Cloudinary é buscada */
@@ -413,14 +483,16 @@
     </header>
 
     <div class="lang-switch" id="langSwitch">
-        <button type="button" data-lang="pt">PT</button>
-        <span class="separator">|</span>
-        <button type="button" data-lang="es">ES</button>
-        <span class="separator">|</span>
-        <button type="button" data-lang="en">EN</button>
+        <button type="button" class="lang-current" id="langCurrentBtn" aria-haspopup="true" aria-expanded="false">
+            <span id="langCurrentLabel">EN</span>
+            <span class="lang-arrow">▾</span>
+        </button>
+        <div class="lang-options" id="langOptions">
+            <button type="button" data-lang="pt">PT</button>
+            <button type="button" data-lang="es">ES</button>
+            <button type="button" data-lang="en">EN</button>
+        </div>
     </div>
-
-    <div class="gallery-badge" data-i18n="badge">Exhibition N°01 / Pure Generative Flow</div>
 
     <div id="dotsNav" class="dots-nav"></div>
 
@@ -591,9 +663,11 @@
                 }
             });
 
-            document.querySelectorAll("#langSwitch button").forEach((btn) => {
+            document.querySelectorAll("#langOptions button").forEach((btn) => {
                 btn.classList.toggle("active", btn.getAttribute("data-lang") === lang);
             });
+
+            langCurrentLabel.textContent = lang.toUpperCase();
 
             try {
                 localStorage.setItem("idiomaPortfolio", lang);
@@ -602,8 +676,33 @@
             }
         }
 
-        document.querySelectorAll("#langSwitch button").forEach((btn) => {
-            btn.addEventListener("click", () => aplicarIdioma(btn.getAttribute("data-lang")));
+        const langSwitch = document.getElementById("langSwitch");
+        const langCurrentBtn = document.getElementById("langCurrentBtn");
+        const langCurrentLabel = document.getElementById("langCurrentLabel");
+        const langOptions = document.getElementById("langOptions");
+
+        // Abre/fecha o dropdown (só tem efeito visual no mobile, via CSS)
+        langCurrentBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const aberto = langSwitch.classList.toggle("open");
+            langCurrentBtn.setAttribute("aria-expanded", aberto);
+        });
+
+        // Fecha o dropdown ao clicar fora dele
+        document.addEventListener("click", (e) => {
+            if (!langSwitch.contains(e.target)) {
+                langSwitch.classList.remove("open");
+                langCurrentBtn.setAttribute("aria-expanded", "false");
+            }
+        });
+
+        // Seleção de idioma + fecha o dropdown depois de escolher
+        langOptions.querySelectorAll("button").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                aplicarIdioma(btn.getAttribute("data-lang"));
+                langSwitch.classList.remove("open");
+                langCurrentBtn.setAttribute("aria-expanded", "false");
+            });
         });
 
         // Recupera idioma salvo anteriormente, se existir; caso contrário mantém inglês
@@ -689,23 +788,14 @@
             const fotosEmbaralhadas = gsap.utils.shuffle([...urlsProntas]);
             const totalFotos = fotosEmbaralhadas.length;
             const framesElementos = [];
-            const isMobile = window.innerWidth <= 768;
 
-            // Distribuição processual e fluida pelo ecrã
+            // Todas as molduras compartilham a mesma posição central e tamanho
+            // (definidos em CSS via .art-frame), garantindo que cada foto —
+            // horizontal ou vertical — apareça sempre centralizada e no maior
+            // tamanho possível, com object-fit: contain cuidando do encaixe.
             for (let i = 0; i < totalFotos; i++) {
                 const frame = document.createElement("div");
                 frame.className = "art-frame";
-
-                const width = isMobile ? gsap.utils.random(85, 95) : gsap.utils.random(65, 85);
-                const height = isMobile ? gsap.utils.random(55, 70) : gsap.utils.random(70, 90);
-
-                const left = isMobile ? gsap.utils.random(2, 8) : gsap.utils.random(7, 20);
-                const top = isMobile ? gsap.utils.random(2, 10) : gsap.utils.random(3, 15);
-
-                frame.style.width = `${width}vw`;
-                frame.style.height = `${height}vh`;
-                frame.style.left = `${left}vw`;
-                frame.style.top = `${top}vh`;
 
                 const img = document.createElement("img");
                 img.src = fotosEmbaralhadas[i];
@@ -742,22 +832,45 @@
             }
 
             // ==========================================
-            // 5. COREOGRAFIA DE ROLAGEM LENTA
+            // 5. COREOGRAFIA DE ROLAGEM POR PASSOS (1 SCROLL = 1 IMAGEM)
             // ==========================================
+
+            // Pré-declaradas aqui (com valores "vazios") porque o callback
+            // onUpdate do ScrollTrigger pode disparar antes de calcularmos
+            // os valores reais logo abaixo — evita erro de referência.
+            let stepProgress = [0];
+            let totalSteps = 1;
+            let currentStep = 0;
+
+            function progressoParaStepMaisProximo(progresso) {
+                let melhorIndice = 0;
+                let melhorDistancia = Infinity;
+                stepProgress.forEach((p, idx) => {
+                    const distancia = Math.abs(p - progresso);
+                    if (distancia < melhorDistancia) {
+                        melhorDistancia = distancia;
+                        melhorIndice = idx;
+                    }
+                });
+                return melhorIndice;
+            }
+
+            // Distância virtual de scroll total. O valor exato não é crítico
+            // aqui, pois não dependemos mais do tamanho do gesto do usuário —
+            // cada scroll/swipe salta diretamente para o próximo "step".
+            const distanciaScrollTotal = Math.max(6000, totalFotos * 900);
 
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: ".scroll-container",
                     start: "top top",
-                    end: "+=26000",
-                    scrub: 1.5,
+                    end: `+=${distanciaScrollTotal}`,
+                    scrub: 3.2, // controla o ritmo do fade — valor maior = revelação mais lenta e contemplativa
                     pin: true,
                     onUpdate: (self) => {
-                        const indiceAtivo = Math.min(
-                            totalFotos - 1,
-                            Math.floor(self.progress * totalFotos)
-                        );
-                        atualizarDotAtivo(indiceAtivo);
+                        const indiceMaisProximo = progressoParaStepMaisProximo(self.progress);
+                        atualizarDotAtivo(indiceMaisProximo);
+                        currentStep = indiceMaisProximo;
                     },
                     onLeave: () => {
                         dotsNav.classList.add("hidden");
@@ -768,11 +881,15 @@
                 }
             });
 
+            // Marca o "step 0" = a primeira foto, já visível antes de qualquer scroll
+            const stepLabels = ["step0"];
+            tl.addLabel("step0", 0);
+
             // Saída suave da obra inicial
             tl.to(framesElementos[0], {
                 opacity: 0,
                 filter: "blur(20px)",
-                duration: 2.5,
+                duration: 3.5,
                 ease: "power1.inOut"
             });
 
@@ -785,22 +902,156 @@
                 tl.to(framesElementos[idx], {
                     opacity: 1,
                     filter: "blur(0px)",
-                    duration: 3.2,
+                    duration: 4.8,
                     ease: "power2.inOut"
                 }, `-=${i === 0 ? 1.5 : 1.2}`);
+
+                // Marca o instante em que esta foto está totalmente visível —
+                // esse ponto é o alvo de scroll de um "step" completo
+                const labelAtual = `step${i + 1}`;
+                tl.addLabel(labelAtual);
+                stepLabels.push(labelAtual);
 
                 if (i < ordemSurgimentoRandomica.length - 1) {
                     tl.to(framesElementos[idx], {
                         opacity: 0,
                         filter: "blur(20px)",
-                        duration: 2.5,
+                        duration: 3.5,
                         ease: "power1.inOut"
                     }, "+=1.2");
                 }
             });
 
+            // Converte cada label em uma fração de progresso (0 a 1) dentro da timeline
+            const duracaoTotal = tl.duration();
+            stepProgress = stepLabels.map((label) => tl.labels[label] / duracaoTotal);
+            totalSteps = stepProgress.length;
+
             ScrollTrigger.refresh();
+
+            // ==========================================
+            // NAVEGAÇÃO POR STEPS: 1 SCROLL/SWIPE = 1 IMAGEM
+            // ==========================================
+
+            let travadoPorCooldown = false;
+
+            // Tempo mínimo de contemplação da última foto antes de permitir
+            // que o scroll saia da galeria e siga para a próxima seção
+            const tempoContemplacaoSaidaMs = 2200;
+            let prontoParaSairDaGaleria = false;
+            let saidaTimeout = null;
+
+            function irParaStep(novoIndice) {
+                const alvo = Math.max(0, Math.min(totalSteps - 1, novoIndice));
+                if (alvo === currentStep) return;
+
+                currentStep = alvo;
+                const st = tl.scrollTrigger;
+                const destinoY = st.start + stepProgress[currentStep] * (st.end - st.start);
+                window.scrollTo(0, destinoY);
+
+                clearTimeout(saidaTimeout);
+                if (currentStep === totalSteps - 1) {
+                    // Chegou na última foto: trava a saída por um tempo mínimo,
+                    // dando espaço para a imagem ser contemplada por completo
+                    prontoParaSairDaGaleria = false;
+                    saidaTimeout = setTimeout(() => {
+                        prontoParaSairDaGaleria = true;
+                    }, tempoContemplacaoSaidaMs);
+                } else {
+                    prontoParaSairDaGaleria = false;
+                }
+            }
+
+            function tentarAvancar(indoParaFrente) {
+                const st = tl.scrollTrigger;
+                if (!st || !st.isActive) return; // só intercepta enquanto a galeria está pinada
+
+                // No último step, avançar mais deixa o scroll nativo seguir para a próxima seção
+                if (indoParaFrente && currentStep === totalSteps - 1) return;
+                // No primeiro step, voltar mais não faz nada (já é o topo da página)
+                if (!indoParaFrente && currentStep === 0) return;
+
+                if (travadoPorCooldown) {
+                    return true; // ainda dentro do cooldown do passo anterior — ignora, mas bloqueia o scroll nativo
+                }
+
+                travadoPorCooldown = true;
+                irParaStep(currentStep + (indoParaFrente ? 1 : -1));
+                setTimeout(() => { travadoPorCooldown = false; }, cooldownEntrePassosMs);
+
+                return true; // sinaliza que o evento deve ser bloqueado (preventDefault)
+            }
+
+            // Cooldown curto e fixo entre passos: garante resposta rápida a
+            // scrolls seguidos, sem depender de esperar o gesto "terminar"
+            const cooldownEntrePassosMs = 550;
+
+            // Ignora eventos de wheel com deltaY muito pequeno — geralmente
+            // são a "cauda" de inércia de um scroll de trackpad, não um novo
+            // gesto intencional do usuário
+            const deltaMinimoWheel = 3;
+
+            // Scroll do mouse / trackpad
+            window.addEventListener("wheel", (e) => {
+                const st = tl.scrollTrigger;
+                if (!st || !st.isActive) return;
+                if (Math.abs(e.deltaY) < deltaMinimoWheel) return;
+
+                const indoParaFrente = e.deltaY > 0;
+
+                if (!indoParaFrente && currentStep === 0) return; // libera scroll nativo (voltar ao topo)
+
+                // Chegando ao fim da galeria: só libera o scroll nativo depois
+                // que o usuário teve tempo de ver a última foto por completo
+                if (indoParaFrente && currentStep === totalSteps - 1) {
+                    if (prontoParaSairDaGaleria) {
+                        return; // libera o scroll nativo de fato, segue para a próxima seção
+                    }
+                    e.preventDefault(); // ainda segura a galeria pinada
+                    return;
+                }
+
+                e.preventDefault();
+                tentarAvancar(indoParaFrente);
+            }, { passive: false });
+
+            // Swipe em telas touch
+            let touchStartY = null;
+
+            window.addEventListener("touchstart", (e) => {
+                const st = tl.scrollTrigger;
+                if (!st || !st.isActive) return;
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+
+            window.addEventListener("touchmove", (e) => {
+                const st = tl.scrollTrigger;
+                if (!st || !st.isActive || touchStartY === null) return;
+
+                const deltaY = touchStartY - e.touches[0].clientY;
+                if (Math.abs(deltaY) < 25) return; // ignora movimentos muito pequenos
+
+                const indoParaFrente = deltaY > 0;
+
+                if (!indoParaFrente && currentStep === 0) { touchStartY = null; return; }
+
+                if (indoParaFrente && currentStep === totalSteps - 1) {
+                    if (prontoParaSairDaGaleria) {
+                        touchStartY = null;
+                        return; // libera o scroll nativo
+                    }
+                    e.preventDefault();
+                    touchStartY = null;
+                    return;
+                }
+
+                e.preventDefault();
+                tentarAvancar(indoParaFrente);
+                touchStartY = null; // exige um novo toque para o próximo passo
+            }, { passive: false });
         }
+
 
         iniciarExposicao();
 
